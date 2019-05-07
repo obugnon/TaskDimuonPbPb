@@ -14,16 +14,16 @@
 
 TString GetTriggerClassName(UInt_t triggerClass = AliVEvent::kINT7inMUON);
 
-///Add the names of the output containers. The method is not fully automatic with the cxx file, so you have to keep the same order here and there (when defining the output containers in TaskDimuonPPB.cxx)
+///Add the names of the output containers. The method is not fully automatic with the cxx file, so you have to keep the same order here and there (when defining the output containers in TaskDimuonPbPb.cxx)
 TString outputListNames[] = {"EventHistos", "SingleMuonHistos", "DiMuonHistos"};
 int numberOfOutputLists = sizeof( outputListNames ) / sizeof( outputListNames[0] );
 
 ///Add the names of the trigger classes. Refer to AliVEvent.h to see the description for each trigger class. When adding multiple entries in the array, the analysis manager will run the class multiple times, each time using the correponding trigger class. The output containers will be labelled by the name of trigger
-UInt_t triggerClasses[] = {AliVEvent::kMuonUnlikeLowPt7,AliVEvent::kMuonLikeLowPt7, AliVEvent::kINT7inMUON, AliVEvent::kMuonSingleLowPt7};
+UInt_t triggerClasses[] = {AliVEvent::kMuonUnlikeLowPt7, AliVEvent::kINT7inMUON, AliVEvent::kMuonSingleLowPt7};
 int numberOfTriggerClasses = sizeof( triggerClasses ) / sizeof( triggerClasses[0] );
 const int numberOfTriggerClasses_CONST = numberOfTriggerClasses;
 
-TaskDimuonPbPb* AddMyTask(Bool_t isESD=kFALSE, TString name = "name", int firstRun = 265594, int lastRun = 266318)
+TaskDimuonPbPb* AddMyTask(Bool_t isESD=kFALSE, TString name = "name", int firstRun = 244918, int lastRun = 246994)
 {
     // get the manager via the static access member. since it's static, you don't need
     // to create an instance of the class here to call the function
@@ -54,7 +54,7 @@ TaskDimuonPbPb* AddMyTask(Bool_t isESD=kFALSE, TString name = "name", int firstR
     {
         TString triggerClassName = GetTriggerClassName(triggerClasses[iTask]);
         //A task for each trigger class
-        task[iTask] = new TaskDimuonPbPb(Form("TaskDimuonPPB%s",triggerClassName.Data()));
+        task[iTask] = new TaskDimuonPbPb(Form("TaskDimuonPbPb%s",triggerClassName.Data()) , firstRun , lastRun , triggerClasses[iTask]);
         if(!task[iTask]) return 0x0;
         task[iTask]->SelectCollisionCandidates(triggerClasses[iTask]);
         // add your task to the manager

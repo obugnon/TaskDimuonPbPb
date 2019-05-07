@@ -19,13 +19,20 @@
  * as an example, one histogram is filled
  */
 
+// include root libraries
+#include <iostream>
 #include "TChain.h"
 #include "TH1F.h"
 #include "TList.h"
+#include "TChain.h"
+#include "TMath.h"
+#include "THnSparse.h"
+// include AliRoot Libraries
 #include "AliAnalysisTask.h"
 #include "AliAnalysisManager.h"
 #include "AliAODEvent.h"
 #include "AliAODInputHandler.h"
+#include "AliMuonTrackCuts.h"
 #include "TaskDimuonPbPb.h"
 
 class TaskDimuonPbPb;    // your analysis class
@@ -35,31 +42,77 @@ using namespace std;            // std namespace: so you can do things like 'cou
 ClassImp(TaskDimuonPbPb) // classimp: necessary for root
 
 TaskDimuonPbPb::TaskDimuonPbPb() : AliAnalysisTaskSE(), 
-    fAOD(0), fOutputList(0), fHistPt(0)
+    fAOD(0), 
+    fMuonTrackCuts(0),
+    fTriggerClass(0),
+    fFirstRun(0),
+    fLastRun(0),
+    fListEventHistos(0), 
+    fListSingleMuonHistos(0),
+    fListDiMuonHistos(0),
+    fHistoTotalEventsPerRun(0),
+    fHistoPSEventsPerRun(0),
+    fHistoEventsBeforePSPerRun(0),
+    fHistoCMULEventsInCINT7(0),
+    fHistoCMSLEventsInCINT7(0),
+    fHistoCMULEventsInCMSL(0),
+    fHistoNumberMuonsCuts(0),
+    fHistoDiMuonOS(0),
+    fHistoSingleMuon(0)
 {
     // default constructor, don't allocate memory here!
     // this is used by root for IO purposes, it needs to remain empty
 }
 //_____________________________________________________________________________
-TaskDimuonPbPb::TaskDimuonPbPb(const char* name) : AliAnalysisTaskSE(name),
-    fAOD(0), fOutputList(0), fHistPt(0)
+TaskDimuonPbPb::TaskDimuonPbPb(const char* name,int firstRun, int lastRun, UInt_t triggerClass) : AliAnalysisTaskSE(name),
+    fAOD(0), 
+    fMuonTrackCuts(0),
+    fTriggerClass(triggerClass),
+    fFirstRun(firstRun),
+    fLastRun(lastRun),
+    fListEventHistos(0), 
+    fListSingleMuonHistos(0),
+    fListDiMuonHistos(0),
+    fHistoTotalEventsPerRun(0),
+    fHistoPSEventsPerRun(0),
+    fHistoEventsBeforePSPerRun(0),
+    fHistoCMULEventsInCINT7(0),
+    fHistoCMSLEventsInCINT7(0),
+    fHistoCMULEventsInCMSL(0),
+    fHistoNumberMuonsCuts(0),
+    fHistoDiMuonOS(0),
+    fHistoSingleMuon(0)
 {
     // constructor
     DefineInput(0, TChain::Class());    // define the input of the analysis: in this case we take a 'chain' of events
                                         // this chain is created by the analysis manager, so no need to worry about it, 
                                         // it does its work automatically
     DefineOutput(1, TList::Class());    // define the ouptut of the analysis: in this case it's a list of histograms 
-                                        // you can add more output objects by calling DefineOutput(2, classname::Class())
-                                        // if you add more output objects, make sure to call PostData for all of them, and to
-                                        // make changes to your AddTask macro!
+    if(fTriggerClass == AliVEvent::kMuonUnlikeLowPt7)
+    {
+        DefineOutput(2, TList::Class());    // you can add more output objects by calling DefineOutput(2, classname::Class())
+        DefineOutput(3, TList::Class());    // if you add more output objects, make sure to call PostData for all of them, and to
+    }                                          // make changes to your AddTask macro!
 }
 //_____________________________________________________________________________
 TaskDimuonPbPb::~TaskDimuonPbPb()
 {
     // destructor
-    if(fOutputList) {
-        delete fOutputList;     // at the end of your task, it is deleted from memory by calling this function
+    if(fListEventHistos && !AliAnalysisManager::GetAnalysisManager()->IsProofMode()) {
+        delete fListEventHistos;     // at the end of your task, it is deleted from memory by calling this function
     }
+    if(fListSingleMuonHistos && !AliAnalysisManager::GetAnalysisManager()->IsProofMode()) {
+        delete fListSingleMuonHistos;
+    }
+    if(fListDiMuonHistos && !AliAnalysisManager::GetAnalysisManager()->IsProofMode()) {
+        delete fListDiMuonHistos;
+    }
+}
+//_____________________________________________________________________________
+void TaskDimuonPbPb::NotifyRun()
+{
+  /// Set run number for cuts
+  if ( fMuonTrackCuts ) fMuonTrackCuts->SetRun(fInputHandler);
 }
 //_____________________________________________________________________________
 void TaskDimuonPbPb::UserCreateOutputObjects()
@@ -71,21 +124,107 @@ void TaskDimuonPbPb::UserCreateOutputObjects()
     //
     // the histograms are in this case added to a tlist, this list is in the end saved
     // to an output file
-    //
-    fOutputList = new TList();          // this is a list which will contain all of your histograms
-                                        // at the end of the analysis, the contents of this list are written
-                                        // to the output file
-    fOutputList->SetOwner(kTRUE);       // memory stuff: the list is owner of all objects it contains and will delete them
-                                        // if requested (dont worry about this now)
 
-    // example of a histogram
-    fHistPt = new TH1F("fHistPt", "fHistPt", 100, 0, 10);       // create your histogra
-    fOutputList->Add(fHistPt);          // don't forget to add it to the list! the list will be written to file, so if you want
-                                        // your histogram in the output file, add it to the list!
+     //Event histograms
+    fListEventHistos = new TList();
+    fListEventHistos->SetOwner(kTRUE);
+
+    fHistoTotalEventsPerRun = new TH1I("fHistoTotalEventsPerRun","",fLastRun - fFirstRun,fFirstRun,fLastRun);
+    fHistoTotalEventsPerRun->Sumw2();
+    fHistoTotalEventsPerRun->GetXaxis()->SetTitle("Run Number");
+    fHistoTotalEventsPerRun->GetYaxis()->SetTitle("# Total Events");
+    fListEventHistos->Add(fHistoTotalEventsPerRun);
     
-    PostData(1, fOutputList);           // postdata will notify the analysis manager of changes / updates to the 
-                                        // fOutputList object. the manager will in the end take care of writing your output to file
-                                        // so it needs to know what's in the output
+    fHistoPSEventsPerRun = new TH1I("fHistoPSEventsPerRun","",fLastRun - fFirstRun,fFirstRun,fLastRun);
+    fHistoPSEventsPerRun->Sumw2();
+    fHistoPSEventsPerRun->GetXaxis()->SetTitle("Run Number");
+    fHistoPSEventsPerRun->GetYaxis()->SetTitle("# PS Events");
+    fListEventHistos->Add(fHistoPSEventsPerRun);
+
+
+    fHistoEventsBeforePSPerRun = new TH1I("fHistoEventsBeforePSPerRun","",fLastRun - fFirstRun, fFirstRun, fLastRun);
+    fHistoEventsBeforePSPerRun->Sumw2();
+    fHistoEventsBeforePSPerRun->GetXaxis()->SetTitle("Run Number");
+    fHistoEventsBeforePSPerRun->GetYaxis()->SetTitle("# Events before physic selection");
+    fListEventHistos->Add(fHistoEventsBeforePSPerRun);
+
+    if(fTriggerClass == AliVEvent::kINT7inMUON)
+    {
+        fHistoCMULEventsInCINT7 = new TH1I("fHistoCMULEventsInCINT7","",fLastRun - fFirstRun,fFirstRun,fLastRun);
+        fHistoCMULEventsInCINT7->Sumw2();
+        fHistoCMULEventsInCINT7->GetXaxis()->SetTitle("Run Number");
+        fHistoCMULEventsInCINT7->GetYaxis()->SetTitle("# 0MUL inputs in CINT7 events");
+        fListEventHistos->Add(fHistoCMULEventsInCINT7);
+    
+        fHistoCMSLEventsInCINT7 = new TH1I("fHistoCMSLEventsInCINT7","",fLastRun - fFirstRun,fFirstRun,fLastRun);
+        fHistoCMSLEventsInCINT7->Sumw2();
+        fHistoCMSLEventsInCINT7->GetXaxis()->SetTitle("Run Number");
+        fHistoCMSLEventsInCINT7->GetYaxis()->SetTitle("# 0MSL inputs in CINT7 events");
+        fListEventHistos->Add(fHistoCMSLEventsInCINT7);
+    }
+
+
+    if(fTriggerClass == AliVEvent::kMuonSingleLowPt7)
+    {
+        fHistoCMULEventsInCMSL = new TH1I("fHistoCMULEventsInCMSL","",fLastRun - fFirstRun,fFirstRun,fLastRun);
+        fHistoCMULEventsInCMSL->Sumw2();
+        fHistoCMULEventsInCMSL->GetXaxis()->SetTitle("Run Number");
+        fHistoCMULEventsInCMSL->GetYaxis()->SetTitle("# 0MUL inputs in CMSL events");
+        fListEventHistos->Add(fHistoCMULEventsInCMSL);
+    }
+
+    if(fTriggerClass == AliVEvent::kMuonUnlikeLowPt7)
+    {
+        //SingleMuon histograms
+        fListSingleMuonHistos = new TList();
+        fListSingleMuonHistos->SetOwner(kTRUE);
+
+        Int_t nbinsSingleMuon[4]={1000,60,100,100}; //pT, Eta, Theta, Phi
+        Double_t xminSingleMuon[4]={0,-5,0.75*TMath::Pi(),-TMath::Pi()}, xmaxSingleMuon[4]={100,-2,1.25*TMath::Pi(),TMath::Pi()};
+        fHistoSingleMuon = new THnSparseD("fHistoSingleMuon","",4, nbinsSingleMuon,xminSingleMuon,xmaxSingleMuon, 1024*16);
+        fHistoSingleMuon->Sumw2();
+        fHistoSingleMuon->GetAxis(0)->SetTitle("p_{T} GeV/c");
+        fHistoSingleMuon->GetAxis(1)->SetTitle("#eta");
+        fHistoSingleMuon->GetAxis(2)->SetTitle("#theta");
+        fHistoSingleMuon->GetAxis(3)->SetTitle("#phi");
+        fListSingleMuonHistos->Add(fHistoSingleMuon);
+
+        fHistoNumberMuonsCuts = new TH1F("fHistoNumberMuonsCuts","",2,0,2);
+        fHistoNumberMuonsCuts->Sumw2();
+        fHistoNumberMuonsCuts->GetXaxis()->SetTitle("bin 1: without cut, bin 2: with cuts");
+        fHistoNumberMuonsCuts->GetYaxis()->SetTitle("# single muons");
+        fListSingleMuonHistos->Add(fHistoNumberMuonsCuts);
+
+
+        //DiMuon histograms
+        fListDiMuonHistos = new TList();
+        fListDiMuonHistos->SetOwner(kTRUE);
+
+
+        Int_t nbinsDiMuon[5]={1400,1000,60,10,1000}; //Mmumu, pT, y, centrality, pT single muon
+        Double_t xminDiMuon[5]={0,0,-5,0,0}, xmaxDiMuon[5]={140,100,-2,100,100};
+        fHistoDiMuonOS = new THnSparseD("fHistoDiMuonOS","",5,nbinsDiMuon,xminDiMuon,xmaxDiMuon, 1024*16);
+        fHistoDiMuonOS->Sumw2();
+        fHistoDiMuonOS->GetAxis(0)->SetTitle("M_{#mu#mu} GeV/c^{2}");
+        fHistoDiMuonOS->GetAxis(1)->SetTitle("p_{T} GeV/c");
+        fHistoDiMuonOS->GetAxis(2)->SetTitle("y");
+        fHistoDiMuonOS->GetAxis(3)->SetTitle("Centrality #%");
+        fHistoDiMuonOS->GetAxis(4)->SetTitle("Lower single muon p_{T}");
+        fListDiMuonHistos->Add(fHistoDiMuonOS);
+
+        //The muon muonTrackCuts can be defined here. Hiwever it is better to defien it outside (in addTaskDimuonPPB.C). To be fixed
+        //fMuonTrackCuts = new AliMuonTrackCuts("StandardMuonTrackCuts","StandardMuonTrackCuts");
+        //fMuonTrackCuts->SetAllowDefaultParams(kTRUE);
+        //fMuonTrackCuts->SetFilterMask (AliMuonTrackCuts::kMuEta | AliMuonTrackCuts::kMuThetaAbs  | AliMuonTrackCuts::kMuMatchLpt | AliMuonTrackCuts::kMuPdca);//Set the cuts to be used for the muon selections. See all the available cuts in AliMuonTrackCuts.h
+    }
+
+  //This is needed to save the outputs.
+  PostData(1, fListEventHistos);
+  if(fTriggerClass == AliVEvent::kMuonUnlikeLowPt7)
+    {
+        PostData(2, fListSingleMuonHistos);
+        PostData(3, fListDiMuonHistos);
+    }
 }
 //_____________________________________________________________________________
 void TaskDimuonPbPb::UserExec(Option_t *)
@@ -105,11 +244,15 @@ void TaskDimuonPbPb::UserExec(Option_t *)
     for(Int_t i(0); i < iTracks; i++) {                 // loop ove rall these tracks
         AliAODTrack* track = static_cast<AliAODTrack*>(fAOD->GetTrack(i));         // get a track (type AliAODTrack) from the event
         if(!track || !track->TestFilterBit(1)) continue;                            // if we failed, skip this track
-        fHistPt->Fill(track->Pt());                     // plot the pt value of the track in a histogram
-    }                                                   // continue until all the tracks are processed
-    PostData(1, fOutputList);                           // stream the results the analysis of this event to
-                                                        // the output manager which will take care of writing
-                                                        // it to a file
+        //fHistoNumberMuonsCuts->Fill(track->Pt());            
+    }
+
+    PostData(1, fListEventHistos);
+    if(fTriggerClass == AliVEvent::kMuonUnlikeLowPt7)
+    {
+        PostData(2, fListSingleMuonHistos);
+        PostData(3, fListDiMuonHistos);
+    }
 }
 //_____________________________________________________________________________
 void TaskDimuonPbPb::Terminate(Option_t *)
