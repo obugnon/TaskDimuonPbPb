@@ -208,14 +208,14 @@ void TaskDimuonPbPb::UserCreateOutputObjects()
         fHistoDiMuonOS->GetAxis(0)->SetTitle("M_{#mu#mu} GeV/c^{2}");
         fHistoDiMuonOS->GetAxis(1)->SetTitle("p_{T} GeV/c");
         fHistoDiMuonOS->GetAxis(2)->SetTitle("y");
-        fHistoDiMuonOS->GetAxis(3)->SetTitle("Centrality #%");
+        fHistoDiMuonOS->GetAxis(3)->SetTitle("Centrality %");
         fHistoDiMuonOS->GetAxis(4)->SetTitle("Lower single muon p_{T}");
         fListDiMuonHistos->Add(fHistoDiMuonOS);
 
         //The muon muonTrackCuts can be defined here. Hiwever it is better to defien it outside (in addTaskDimuonPPB.C). To be fixed
-        //fMuonTrackCuts = new AliMuonTrackCuts("StandardMuonTrackCuts","StandardMuonTrackCuts");
-        //fMuonTrackCuts->SetAllowDefaultParams(kTRUE);
-        //fMuonTrackCuts->SetFilterMask (AliMuonTrackCuts::kMuEta | AliMuonTrackCuts::kMuThetaAbs  | AliMuonTrackCuts::kMuMatchLpt | AliMuonTrackCuts::kMuPdca);//Set the cuts to be used for the muon selections. See all the available cuts in AliMuonTrackCuts.h
+        fMuonTrackCuts = new AliMuonTrackCuts("StandardMuonTrackCuts","StandardMuonTrackCuts");
+        fMuonTrackCuts->SetAllowDefaultParams(kTRUE);
+        fMuonTrackCuts->SetFilterMask (AliMuonTrackCuts::kMuEta | AliMuonTrackCuts::kMuThetaAbs  | AliMuonTrackCuts::kMuMatchLpt | AliMuonTrackCuts::kMuPdca);//Set the cuts to be used for the muon selections. See all the available cuts in AliMuonTrackCuts.h
     }
 
   //This is needed to save the outputs.
