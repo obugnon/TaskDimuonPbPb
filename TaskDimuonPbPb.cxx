@@ -96,11 +96,9 @@ TaskDimuonPbPb::TaskDimuonPbPb(const char* name,int firstRun, int lastRun, UInt_
                                         // this chain is created by the analysis manager, so no need to worry about it, 
                                         // it does its work automatically
     DefineOutput(1, TList::Class());    // define the ouptut of the analysis: in this case it's a list of histograms 
-    if(fTriggerClass == AliVEvent::kMuonUnlikeLowPt7)
-    {
-        DefineOutput(2, TList::Class());    // you can add more output objects by calling DefineOutput(2, classname::Class())
-        DefineOutput(3, TList::Class());    // if you add more output objects, make sure to call PostData for all of them, and to
-    }                                          // make changes to your AddTask macro!
+    DefineOutput(2, TList::Class());    // you can add more output objects by calling DefineOutput(2, classname::Class())
+    DefineOutput(3, TList::Class());    // if you add more output objects, make sure to call PostData for all of them, and to
+                                        // make changes to your AddTask macro!
 }
 //_____________________________________________________________________________
 TaskDimuonPbPb::~TaskDimuonPbPb()
@@ -181,12 +179,14 @@ void TaskDimuonPbPb::UserCreateOutputObjects()
         fListEventHistos->Add(fHistoCMULEventsInCMSL);
     }
 
+    fListSingleMuonHistos = new TList();
+    fListSingleMuonHistos->SetOwner(kTRUE);
+    fListDiMuonHistos = new TList();
+    fListDiMuonHistos->SetOwner(kTRUE);
+
     if(fTriggerClass == AliVEvent::kMuonUnlikeLowPt7)
     {
         //SingleMuon histograms
-        fListSingleMuonHistos = new TList();
-        fListSingleMuonHistos->SetOwner(kTRUE);
-
         Int_t nbinsSingleMuon[5]={1000,60,100,100, 10}; //pT, Eta, Theta, Phi, cent
         Double_t xminSingleMuon[5]={0,-5,0.75*TMath::Pi(),-TMath::Pi(), 0}, xmaxSingleMuon[5]={100,-2,1.25*TMath::Pi(),TMath::Pi(),100};
         fHistoSingleMuon = new THnSparseD("fHistoSingleMuon","",5, nbinsSingleMuon,xminSingleMuon,xmaxSingleMuon, 1024*16);
@@ -206,10 +206,6 @@ void TaskDimuonPbPb::UserCreateOutputObjects()
 
 
         //DiMuon histograms
-        fListDiMuonHistos = new TList();
-        fListDiMuonHistos->SetOwner(kTRUE);
-
-
         Int_t nbinsDiMuon[5]={1400,1000,60,10,1000}; //Mmumu, pT, y, centrality, pT single muon
         Double_t xminDiMuon[5]={0,0,-5,0,0}, xmaxDiMuon[5]={140,100,-2,100,100};
         fHistoDiMuonOS = new THnSparseD("fHistoDiMuonOS","",5,nbinsDiMuon,xminDiMuon,xmaxDiMuon, 1024*16);
@@ -239,11 +235,9 @@ void TaskDimuonPbPb::UserCreateOutputObjects()
 
   //This is needed to save the outputs.
   PostData(1, fListEventHistos);
-  if(fTriggerClass == AliVEvent::kMuonUnlikeLowPt7)
-    {
-        PostData(2, fListSingleMuonHistos);
-        PostData(3, fListDiMuonHistos);
-    }
+  PostData(2, fListSingleMuonHistos);
+  PostData(3, fListDiMuonHistos);
+
 }
 //_____________________________________________________________________________
 void TaskDimuonPbPb::UserExec(Option_t *)
@@ -374,11 +368,8 @@ void TaskDimuonPbPb::UserExec(Option_t *)
     }
 
     PostData(1, fListEventHistos);
-    if(fTriggerClass == AliVEvent::kMuonUnlikeLowPt7)
-    {
-        PostData(2, fListSingleMuonHistos);
-        PostData(3, fListDiMuonHistos);
-    }
+    PostData(2, fListSingleMuonHistos);
+    PostData(3, fListDiMuonHistos);
 }
 //_____________________________________________________________________________
 void TaskDimuonPbPb::Terminate(Option_t *)

@@ -7,7 +7,7 @@
 void runAnalysis()
 {
     // set if you want to run the analysis locally (kTRUE), or on grid (kFALSE)
-    Bool_t local = kTRUE;
+    Bool_t local = kFALSE;
     // if you run on grid, specify test mode (kTRUE) or full grid model (kFALSE)
     Bool_t gridTest = kTRUE;
     
@@ -67,10 +67,12 @@ void runAnalysis()
         alienHandler->SetAPIVersion("V1.1x");
         // select the input data
         alienHandler->SetGridDataDir("/alice/data/2015/LHC15o");
-        alienHandler->SetDataPattern("*pass1/AOD194/*AOD.root");
+        alienHandler->SetDataPattern("*muon_calo_pass1/AOD175/*AliAOD.Muons.root");
         // MC has no prefix, data has prefix 000
         alienHandler->SetRunPrefix("000");
         // runnumber
+        //TString inputFile = gSystem->GetFromPipe("cat runList_LHC15o.txt");
+        //alienHandler->AddRunList(inputFile.Data());
         alienHandler->AddRunNumber(246994);
         // number of files per subjob
         alienHandler->SetSplitMaxInputFileNumber(40);
@@ -89,7 +91,7 @@ void runAnalysis()
         alienHandler->SetMergeViaJDL(kTRUE);
 
         // define the output folders
-        alienHandler->SetGridWorkingDir("myWorkingDir");
+        alienHandler->SetGridWorkingDir("dimuonData_LHC15o");
         alienHandler->SetGridOutputDir("myOutputDir");
 
         // connect the alien plugin to the manager
