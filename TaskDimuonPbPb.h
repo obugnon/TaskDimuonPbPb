@@ -20,7 +20,8 @@ class TaskDimuonPbPb : public AliAnalysisTaskSE
         virtual void            Terminate(Option_t* option);
 
     private:
-        AliAODEvent*            fAOD;           //! input event
+        AliAODEvent*            fAODEvent;      //! input event
+        AliVEvent*              fVEvent;
         AliMuonTrackCuts*       fMuonTrackCuts; //! usual cuts on single muon tracks
         UInt_t                  fTriggerClass;  //! trigger selection
         int                     fFirstRun, fLastRun;
@@ -36,7 +37,7 @@ class TaskDimuonPbPb : public AliAnalysisTaskSE
         TH1F *fHistoNumberMuonsCuts;
 
         THnSparseD *fHistoDiMuonOS;     //! histogram to store some properties of dimuons unlike signe
-        //THnSparseD *fHistoDiMuonLS;
+        THnSparseD *fHistoDiMuonLS;
       
         THnSparseD *fHistoSingleMuon;   //! histogram to store some properties of single muons
       

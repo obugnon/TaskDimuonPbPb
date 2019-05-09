@@ -56,7 +56,7 @@ TaskDimuonPbPb* AddMyTask(Bool_t isESD=kFALSE, TString name = "name", int firstR
         //A task for each trigger class
         task[iTask] = new TaskDimuonPbPb(Form("TaskDimuonPbPb%s",triggerClassName.Data()) , firstRun , lastRun , triggerClasses[iTask]);
         if(!task[iTask]) return 0x0;
-        task[iTask]->SelectCollisionCandidates(triggerClasses[iTask]);
+        //task[iTask]->SelectCollisionCandidates(triggerClasses[iTask]);
         // add your task to the manager
         mgr->AddTask(task[iTask]);
         // your task needs input: here we connect the manager to your task
