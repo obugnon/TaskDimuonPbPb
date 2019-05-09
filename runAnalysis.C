@@ -71,9 +71,9 @@ void runAnalysis()
         // MC has no prefix, data has prefix 000
         alienHandler->SetRunPrefix("000");
         // runnumber
-        //TString inputFile = gSystem->GetFromPipe("cat runList_LHC15o.txt");
-        //alienHandler->AddRunList(inputFile.Data());
-        alienHandler->AddRunNumber(246994);
+        TString inputFile = gSystem->GetFromPipe("cat runList_LHC15o.txt");
+        alienHandler->AddRunList(inputFile.Data());
+        //alienHandler->AddRunNumber(246994);
         // number of files per subjob
         alienHandler->SetSplitMaxInputFileNumber(40);
         alienHandler->SetExecutable("myTask.sh");
