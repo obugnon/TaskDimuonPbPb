@@ -75,7 +75,7 @@ void runAnalysis()
         alienHandler->AddRunList(inputFile.Data());
         //alienHandler->AddRunNumber(246994);
         // number of files per subjob
-        alienHandler->SetSplitMaxInputFileNumber(40);
+        alienHandler->SetSplitMaxInputFileNumber(100);
         alienHandler->SetExecutable("myTask.sh");
         // specify how many seconds your job may take
         alienHandler->SetTTL(10000);
