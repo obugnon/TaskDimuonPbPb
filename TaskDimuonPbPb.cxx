@@ -187,7 +187,7 @@ void TaskDimuonPbPb::UserCreateOutputObjects()
     if(fTriggerClass == AliVEvent::kMuonUnlikeLowPt7)
     {
         //SingleMuon histograms
-        Int_t nbinsSingleMuon[5]={1000,60,100,100, 10}; //pT, Eta, Theta, Phi, cent
+        Int_t nbinsSingleMuon[5]={1000,60,100,100, 20}; //pT, Eta, Theta, Phi, cent
         Double_t xminSingleMuon[5]={0,-5,0.75*TMath::Pi(),-TMath::Pi(), 0}, xmaxSingleMuon[5]={100,-2,1.25*TMath::Pi(),TMath::Pi(),100};
         fHistoSingleMuon = new THnSparseD("fHistoSingleMuon","",5, nbinsSingleMuon,xminSingleMuon,xmaxSingleMuon, 1024*16);
         fHistoSingleMuon->Sumw2();
@@ -206,15 +206,14 @@ void TaskDimuonPbPb::UserCreateOutputObjects()
 
 
         //DiMuon histograms
-        Int_t nbinsDiMuon[5]={1400,1000,60,10,1000}; //Mmumu, pT, y, centrality, pT single muon
-        Double_t xminDiMuon[5]={0,0,-5,0,0}, xmaxDiMuon[5]={140,100,-2,100,100};
-        fHistoDiMuonOS = new THnSparseD("fHistoDiMuonOS","",5,nbinsDiMuon,xminDiMuon,xmaxDiMuon, 1024*16);
+        Int_t nbinsDiMuon[4]={1000,200,60,20,100}; //Mmumu, pT, y, centrality
+        Double_t xminDiMuon[4]={0,0,-5,0,0}, xmaxDiMuon[4]={20,20,-2,100,100};
+        fHistoDiMuonOS = new THnSparseD("fHistoDiMuonOS","",4,nbinsDiMuon,xminDiMuon,xmaxDiMuon, 1024*16);
         fHistoDiMuonOS->Sumw2();
         fHistoDiMuonOS->GetAxis(0)->SetTitle("M_{#mu#mu} GeV/c^{2}");
         fHistoDiMuonOS->GetAxis(1)->SetTitle("p_{T} GeV/c");
         fHistoDiMuonOS->GetAxis(2)->SetTitle("y");
         fHistoDiMuonOS->GetAxis(3)->SetTitle("Centrality of the event %");
-        fHistoDiMuonOS->GetAxis(4)->SetTitle("Lower single muon p_{T}");
         fListDiMuonHistos->Add(fHistoDiMuonOS);
 
         fHistoDiMuonLS = new THnSparseD("fHistoDiMuonLS","",5,nbinsDiMuon,xminDiMuon,xmaxDiMuon, 1024*16);
@@ -355,8 +354,6 @@ void TaskDimuonPbPb::UserExec(Option_t *)
                     propertiesDiMuon[1]=lvDiMuon.Pt();
                     propertiesDiMuon[2]=lvDiMuon.Rapidity();
                     propertiesDiMuon[3]=centralityFromV0;
-                    if (lvMuon1.Pt() <= lvMuon2.Pt()) { propertiesDiMuon[4]={lvMuon1.Pt()};}
-                    else { propertiesDiMuon[4]={lvMuon2.Pt()}; }
 
                     if (muonCharge1 != muonCharge2){ fHistoDiMuonOS->Fill(propertiesDiMuon,1); }
                     else if (muonCharge1 == muonCharge2){ fHistoDiMuonLS->Fill(propertiesDiMuon,1); }
