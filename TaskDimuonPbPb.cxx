@@ -206,8 +206,8 @@ void TaskDimuonPbPb::UserCreateOutputObjects()
 
 
         //DiMuon histograms
-        Int_t nbinsDiMuon[4]={1000,200,60,20,100}; //Mmumu, pT, y, centrality
-        Double_t xminDiMuon[4]={0,0,-5,0,0}, xmaxDiMuon[4]={20,20,-2,100,100};
+        Int_t nbinsDiMuon[4]={1000,400,60,20}; //Mmumu, pT, y, centrality
+        Double_t xminDiMuon[4]={0,0,-5,0}, xmaxDiMuon[4]={20,20,-2,100};
         fHistoDiMuonOS = new THnSparseD("fHistoDiMuonOS","",4,nbinsDiMuon,xminDiMuon,xmaxDiMuon, 1024*16);
         fHistoDiMuonOS->Sumw2();
         fHistoDiMuonOS->GetAxis(0)->SetTitle("M_{#mu#mu} GeV/c^{2}");
@@ -216,13 +216,12 @@ void TaskDimuonPbPb::UserCreateOutputObjects()
         fHistoDiMuonOS->GetAxis(3)->SetTitle("Centrality of the event %");
         fListDiMuonHistos->Add(fHistoDiMuonOS);
 
-        fHistoDiMuonLS = new THnSparseD("fHistoDiMuonLS","",5,nbinsDiMuon,xminDiMuon,xmaxDiMuon, 1024*16);
+        fHistoDiMuonLS = new THnSparseD("fHistoDiMuonLS","",4,nbinsDiMuon,xminDiMuon,xmaxDiMuon, 1024*16);
         fHistoDiMuonLS->Sumw2();
         fHistoDiMuonLS->GetAxis(0)->SetTitle("M_{#mu#mu} GeV/c^{2}");
         fHistoDiMuonLS->GetAxis(1)->SetTitle("p_{T} GeV/c");
         fHistoDiMuonLS->GetAxis(2)->SetTitle("y");
         fHistoDiMuonLS->GetAxis(3)->SetTitle("Centrality of the event %");
-        fHistoDiMuonLS->GetAxis(4)->SetTitle("Lower single muon p_{T} GeV/c");
         fListDiMuonHistos->Add(fHistoDiMuonLS);
 
 
@@ -349,7 +348,7 @@ void TaskDimuonPbPb::UserExec(Option_t *)
                     //dimuon properties
                     lvDiMuon = lvMuon1+lvMuon2;
 
-                    Double_t propertiesDiMuon[5]={};
+                    Double_t propertiesDiMuon[4]={};
                     propertiesDiMuon[0]=lvDiMuon.M();
                     propertiesDiMuon[1]=lvDiMuon.Pt();
                     propertiesDiMuon[2]=lvDiMuon.Rapidity();
