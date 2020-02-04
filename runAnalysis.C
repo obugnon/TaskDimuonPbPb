@@ -67,18 +67,22 @@ void runAnalysis()
         alienHandler->SetAPIVersion("V1.1x");
         // select the input data
         alienHandler->SetGridDataDir("/alice/data/2015/LHC15o");
-        alienHandler->SetDataPattern("*muon_calo_pass1/AOD175/*AliAOD.Muons.root");
+        // alienHandler->SetGridDataDir("/alice/data/2018/LHC18q");
+        // alienHandler->SetGridDataDir("/alice/data/2018/LHC18r");
+        alienHandler->SetDataPattern("*muon_calo_pass1/AOD229/*AliAOD.Muons.root");
+        // alienHandler->SetDataPattern("*muon_calo_pass3/AOD225/*AliAOD.Muons.root");
+        // alienHandler->SetDataPattern("*muon_calo_pass3/AOD225/*AliAOD.Muons.root");
         // MC has no prefix, data has prefix 000
         alienHandler->SetRunPrefix("000");
         // runnumber
-        TString inputFile = gSystem->GetFromPipe("cat runList_LHC15o.txt");
+        TString inputFile = gSystem->GetFromPipe("cat runList.txt");
         alienHandler->AddRunList(inputFile.Data());
         //alienHandler->AddRunNumber(246994);
         // number of files per subjob
         alienHandler->SetSplitMaxInputFileNumber(100);
         alienHandler->SetExecutable("myTask.sh");
         // specify how many seconds your job may take
-        alienHandler->SetTTL(10000);
+        alienHandler->SetTTL(30000);
         alienHandler->SetJDLName("myTask.jdl");
 
         alienHandler->SetOutputToRunNo(kTRUE);
@@ -92,6 +96,8 @@ void runAnalysis()
 
         // define the output folders
         alienHandler->SetGridWorkingDir("dimuonData_LHC15o");
+        // alienHandler->SetGridWorkingDir("dimuonData_LHC18q");
+        // alienHandler->SetGridWorkingDir("dimuonData_LHC18r");
         alienHandler->SetGridOutputDir("myOutputDir");
 
         // connect the alien plugin to the manager

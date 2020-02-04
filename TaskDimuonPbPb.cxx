@@ -187,15 +187,16 @@ void TaskDimuonPbPb::UserCreateOutputObjects()
     if(fTriggerClass == AliVEvent::kMuonUnlikeLowPt7)
     {
         //SingleMuon histograms
-        Int_t nbinsSingleMuon[5]={1000,60,100,100, 20}; //pT, Eta, Theta, Phi, cent
-        Double_t xminSingleMuon[5]={0,-5,0.75*TMath::Pi(),-TMath::Pi(), 0}, xmaxSingleMuon[5]={100,-2,1.25*TMath::Pi(),TMath::Pi(),100};
-        fHistoSingleMuon = new THnSparseD("fHistoSingleMuon","",5, nbinsSingleMuon,xminSingleMuon,xmaxSingleMuon, 1024*16);
+        Int_t nbinsSingleMuon[6]={1000,60,100,100, 20, fLastRun - fFirstRun}; //pT, Eta, Theta, Phi, cent
+        Double_t xminSingleMuon[6]={0,-5,0.75*TMath::Pi(),-TMath::Pi(), 0, fFirstRun}, xmaxSingleMuon[6]={100,-2,1.25*TMath::Pi(),TMath::Pi(),100, fLastRun};
+        fHistoSingleMuon = new THnSparseD("fHistoSingleMuon","",6, nbinsSingleMuon,xminSingleMuon,xmaxSingleMuon, 1024*16);
         fHistoSingleMuon->Sumw2();
         fHistoSingleMuon->GetAxis(0)->SetTitle("p_{T} GeV/c");
         fHistoSingleMuon->GetAxis(1)->SetTitle("#eta");
         fHistoSingleMuon->GetAxis(2)->SetTitle("#theta");
         fHistoSingleMuon->GetAxis(3)->SetTitle("#phi");
         fHistoSingleMuon->GetAxis(4)->SetTitle("Centrality of the event %");
+        fHistoSingleMuon->GetAxis(5)->SetTitle("Run Number");
         fListSingleMuonHistos->Add(fHistoSingleMuon);
 
         fHistoNumberMuonsCuts = new TH1F("fHistoNumberMuonsCuts","",2,0,2);
@@ -206,22 +207,24 @@ void TaskDimuonPbPb::UserCreateOutputObjects()
 
 
         //DiMuon histograms
-        Int_t nbinsDiMuon[4]={1000,400,60,20}; //Mmumu, pT, y, centrality
-        Double_t xminDiMuon[4]={0,0,-5,0}, xmaxDiMuon[4]={20,20,-2,100};
-        fHistoDiMuonOS = new THnSparseD("fHistoDiMuonOS","",4,nbinsDiMuon,xminDiMuon,xmaxDiMuon, 1024*16);
+        Int_t nbinsDiMuon[5]={1000,400,60,20, fLastRun - fFirstRun}; //Mmumu, pT, y, centrality
+        Double_t xminDiMuon[5]={0,0,-5,0, fFirstRun}, xmaxDiMuon[5]={20,20,-2,100, fLastRun};
+        fHistoDiMuonOS = new THnSparseD("fHistoDiMuonOS","",5,nbinsDiMuon,xminDiMuon,xmaxDiMuon, 1024*16);
         fHistoDiMuonOS->Sumw2();
         fHistoDiMuonOS->GetAxis(0)->SetTitle("M_{#mu#mu} GeV/c^{2}");
         fHistoDiMuonOS->GetAxis(1)->SetTitle("p_{T} GeV/c");
         fHistoDiMuonOS->GetAxis(2)->SetTitle("y");
         fHistoDiMuonOS->GetAxis(3)->SetTitle("Centrality of the event %");
+        fHistoDiMuonOS->GetAxis(4)->SetTitle("Run Number");
         fListDiMuonHistos->Add(fHistoDiMuonOS);
 
-        fHistoDiMuonLS = new THnSparseD("fHistoDiMuonLS","",4,nbinsDiMuon,xminDiMuon,xmaxDiMuon, 1024*16);
+        fHistoDiMuonLS = new THnSparseD("fHistoDiMuonLS","",5,nbinsDiMuon,xminDiMuon,xmaxDiMuon, 1024*16);
         fHistoDiMuonLS->Sumw2();
         fHistoDiMuonLS->GetAxis(0)->SetTitle("M_{#mu#mu} GeV/c^{2}");
         fHistoDiMuonLS->GetAxis(1)->SetTitle("p_{T} GeV/c");
         fHistoDiMuonLS->GetAxis(2)->SetTitle("y");
         fHistoDiMuonLS->GetAxis(3)->SetTitle("Centrality of the event %");
+        fHistoDiMuonLS->GetAxis(4)->SetTitle("Run Number");
         fListDiMuonHistos->Add(fHistoDiMuonLS);
 
 
@@ -332,7 +335,7 @@ void TaskDimuonPbPb::UserExec(Option_t *)
                 lvMuon1.SetPxPyPzE(muonTrack1->Px(),muonTrack1->Py(),muonTrack1->Pz(),energy1); //def 4-vect muon1
                 Short_t muonCharge1 = muonTrack1->Charge();
                 
-                Double_t propertiesSingleMuon[5]={lvMuon1.Pt(),lvMuon1.Eta(),lvMuon1.Theta(),lvMuon1.Phi(),centralityFromV0};
+                Double_t propertiesSingleMuon[6]={lvMuon1.Pt(),lvMuon1.Eta(),lvMuon1.Theta(),lvMuon1.Phi(),centralityFromV0, runNumber};
                 fHistoSingleMuon->Fill(propertiesSingleMuon,1);
                 
                 for (Int_t iMuon2 = iMuon1+1; iMuon2 < numberOfTracks; iMuon2++)
@@ -348,11 +351,12 @@ void TaskDimuonPbPb::UserExec(Option_t *)
                     //dimuon properties
                     lvDiMuon = lvMuon1+lvMuon2;
 
-                    Double_t propertiesDiMuon[4]={};
+                    Double_t propertiesDiMuon[5]={};
                     propertiesDiMuon[0]=lvDiMuon.M();
                     propertiesDiMuon[1]=lvDiMuon.Pt();
                     propertiesDiMuon[2]=lvDiMuon.Rapidity();
                     propertiesDiMuon[3]=centralityFromV0;
+                    propertiesDiMuon[4]=runNumber;
 
                     if (muonCharge1 != muonCharge2){ fHistoDiMuonOS->Fill(propertiesDiMuon,1); }
                     else if (muonCharge1 == muonCharge2){ fHistoDiMuonLS->Fill(propertiesDiMuon,1); }
