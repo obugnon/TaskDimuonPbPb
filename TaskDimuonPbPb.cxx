@@ -63,7 +63,8 @@ TaskDimuonPbPb::TaskDimuonPbPb() : AliAnalysisTaskSE(),
     fHistoCMULEventsInCMSL(0),
     fHistoNumberMuonsCuts(0),
     fHistoDiMuonOS(0),
-    fHistoDiMuonLS(0),
+    fHistoDiMuonLSplus(0),
+    fHistoDiMuonLSminus(0),
     fHistoSingleMuon(0)
 {
     // default constructor, don't allocate memory here!
@@ -88,7 +89,8 @@ TaskDimuonPbPb::TaskDimuonPbPb(const char* name,int firstRun, int lastRun, UInt_
     fHistoCMULEventsInCMSL(0),
     fHistoNumberMuonsCuts(0),
     fHistoDiMuonOS(0),
-    fHistoDiMuonLS(0),
+    fHistoDiMuonLSplus(0),
+    fHistoDiMuonLSminus(0),
     fHistoSingleMuon(0)
 {
     // constructor
@@ -184,11 +186,11 @@ void TaskDimuonPbPb::UserCreateOutputObjects()
     fListDiMuonHistos = new TList();
     fListDiMuonHistos->SetOwner(kTRUE);
 
-    if(fTriggerClass == AliVEvent::kMuonUnlikeLowPt7)
+    if(fTriggerClass == AliVEvent::kMuonUnlikeLowPt7 || fTriggerClass == AliVEvent::kMuonLikeLowPt7)
     {
         //SingleMuon histograms
         Int_t nbinsSingleMuon[6]={1000,60,100,100, 20, fLastRun - fFirstRun}; //pT, Eta, Theta, Phi, cent
-        Double_t xminSingleMuon[6]={0,-5,0.75*TMath::Pi(),-TMath::Pi(), 0, fFirstRun}, xmaxSingleMuon[6]={100,-2,1.25*TMath::Pi(),TMath::Pi(),100, fLastRun};
+        Double_t xminSingleMuon[6]={0,-5,0.75*TMath::Pi(),-TMath::Pi(), 0, (Double_t)fFirstRun}, xmaxSingleMuon[6]={100,-2,1.25*TMath::Pi(),TMath::Pi(),100, (Double_t)fLastRun};
         fHistoSingleMuon = new THnSparseD("fHistoSingleMuon","",6, nbinsSingleMuon,xminSingleMuon,xmaxSingleMuon, 1024*16);
         fHistoSingleMuon->Sumw2();
         fHistoSingleMuon->GetAxis(0)->SetTitle("p_{T} GeV/c");
@@ -208,7 +210,7 @@ void TaskDimuonPbPb::UserCreateOutputObjects()
 
         //DiMuon histograms
         Int_t nbinsDiMuon[5]={1000,400,60,20, fLastRun - fFirstRun}; //Mmumu, pT, y, centrality
-        Double_t xminDiMuon[5]={0,0,-5,0, fFirstRun}, xmaxDiMuon[5]={20,20,-2,100, fLastRun};
+        Double_t xminDiMuon[5]={0,0,-5,0, (Double_t)fFirstRun}, xmaxDiMuon[5]={20,20,-2,100, (Double_t)fLastRun};
         fHistoDiMuonOS = new THnSparseD("fHistoDiMuonOS","",5,nbinsDiMuon,xminDiMuon,xmaxDiMuon, 1024*16);
         fHistoDiMuonOS->Sumw2();
         fHistoDiMuonOS->GetAxis(0)->SetTitle("M_{#mu#mu} GeV/c^{2}");
@@ -218,14 +220,23 @@ void TaskDimuonPbPb::UserCreateOutputObjects()
         fHistoDiMuonOS->GetAxis(4)->SetTitle("Run Number");
         fListDiMuonHistos->Add(fHistoDiMuonOS);
 
-        fHistoDiMuonLS = new THnSparseD("fHistoDiMuonLS","",5,nbinsDiMuon,xminDiMuon,xmaxDiMuon, 1024*16);
-        fHistoDiMuonLS->Sumw2();
-        fHistoDiMuonLS->GetAxis(0)->SetTitle("M_{#mu#mu} GeV/c^{2}");
-        fHistoDiMuonLS->GetAxis(1)->SetTitle("p_{T} GeV/c");
-        fHistoDiMuonLS->GetAxis(2)->SetTitle("y");
-        fHistoDiMuonLS->GetAxis(3)->SetTitle("Centrality of the event %");
-        fHistoDiMuonLS->GetAxis(4)->SetTitle("Run Number");
-        fListDiMuonHistos->Add(fHistoDiMuonLS);
+        fHistoDiMuonLSplus = new THnSparseD("fHistoDiMuonLSplus","",5,nbinsDiMuon,xminDiMuon,xmaxDiMuon, 1024*16);
+        fHistoDiMuonLSplus->Sumw2();
+        fHistoDiMuonLSplus->GetAxis(0)->SetTitle("M_{#mu#mu} GeV/c^{2}");
+        fHistoDiMuonLSplus->GetAxis(1)->SetTitle("p_{T} GeV/c");
+        fHistoDiMuonLSplus->GetAxis(2)->SetTitle("y");
+        fHistoDiMuonLSplus->GetAxis(3)->SetTitle("Centrality of the event %");
+        fHistoDiMuonLSplus->GetAxis(4)->SetTitle("Run Number");
+        fListDiMuonHistos->Add(fHistoDiMuonLSplus);
+
+        fHistoDiMuonLSminus = new THnSparseD("fHistoDiMuonLSminus","",5,nbinsDiMuon,xminDiMuon,xmaxDiMuon, 1024*16);
+        fHistoDiMuonLSminus->Sumw2();
+        fHistoDiMuonLSminus->GetAxis(0)->SetTitle("M_{#mu#mu} GeV/c^{2}");
+        fHistoDiMuonLSminus->GetAxis(1)->SetTitle("p_{T} GeV/c");
+        fHistoDiMuonLSminus->GetAxis(2)->SetTitle("y");
+        fHistoDiMuonLSminus->GetAxis(3)->SetTitle("Centrality of the event %");
+        fHistoDiMuonLSminus->GetAxis(4)->SetTitle("Run Number");
+        fListDiMuonHistos->Add(fHistoDiMuonLSminus);
 
 
         //The muon muonTrackCuts can be defined here. Hiwever it is better to defien it outside (in addTaskDimuonPPB.C). To be fixed
@@ -253,6 +264,7 @@ void TaskDimuonPbPb::UserExec(Option_t *)
         return;
     }
     int runNumber;
+    cout << " Run Number is " << runNumber << endl;
     fVEvent = static_cast<AliVEvent *>(InputEvent());
     runNumber = fAODEvent->GetRunNumber();
     
@@ -274,6 +286,11 @@ void TaskDimuonPbPb::UserExec(Option_t *)
         if(strFiredTriggers.Contains("CMUL7-B-NOPF-MUFAST")) fHistoEventsBeforePSPerRun->Fill(runNumber);
     }
 
+    if(fTriggerClass == AliVEvent::kMuonLikeLowPt7)
+    {
+        if(strFiredTriggers.Contains("CMLL7-B-NOPF-MUFAST")||strFiredTriggers.Contains("CMUL7-B-NOPF-MUFAST")) fHistoEventsBeforePSPerRun->Fill(runNumber);
+    }
+
     if(fTriggerClass == AliVEvent::kMuonSingleLowPt7)
     {
         if(strFiredTriggers.Contains("CMSL7-B-NOPF-MUFAST")) fHistoEventsBeforePSPerRun->Fill(runNumber);
@@ -282,7 +299,7 @@ void TaskDimuonPbPb::UserExec(Option_t *)
                                 
     //Physics Selection
     UInt_t IsSelected = (((AliInputEventHandler*)(AliAnalysisManager::GetAnalysisManager()->GetInputEventHandler()))->IsEventSelected());
-    if(IsSelected & fTriggerClass)
+    if(((fTriggerClass == AliVEvent::kINT7inMUON || fTriggerClass == AliVEvent::kMuonUnlikeLowPt7 || fTriggerClass == AliVEvent::kMuonSingleLowPt7) && (IsSelected & fTriggerClass)) || (fTriggerClass == AliVEvent::kMuonLikeLowPt7 && (IsSelected & AliVEvent::kMuonLikeLowPt7 || IsSelected & AliVEvent::kMuonUnlikeLowPt7))) 
     {
         fHistoPSEventsPerRun->Fill(runNumber);
         UInt_t L0InputMUL = 1<<20;
@@ -312,7 +329,7 @@ void TaskDimuonPbPb::UserExec(Option_t *)
         }
 
         //Fill Single Muon and Dimuon properties histograms
-        if(fTriggerClass == AliVEvent::kMuonUnlikeLowPt7)
+        if(fTriggerClass == AliVEvent::kMuonUnlikeLowPt7 || fTriggerClass == AliVEvent::kMuonLikeLowPt7)
         {   
             TLorentzVector lvMuon1, lvMuon2, lvDiMuon;
             AliVParticle* muonTrack1;
@@ -335,7 +352,7 @@ void TaskDimuonPbPb::UserExec(Option_t *)
                 lvMuon1.SetPxPyPzE(muonTrack1->Px(),muonTrack1->Py(),muonTrack1->Pz(),energy1); //def 4-vect muon1
                 Short_t muonCharge1 = muonTrack1->Charge();
                 
-                Double_t propertiesSingleMuon[6]={lvMuon1.Pt(),lvMuon1.Eta(),lvMuon1.Theta(),lvMuon1.Phi(),centralityFromV0, runNumber};
+                Double_t propertiesSingleMuon[6]={lvMuon1.Pt(),lvMuon1.Eta(),lvMuon1.Theta(),lvMuon1.Phi(),centralityFromV0, (Double_t)runNumber};
                 fHistoSingleMuon->Fill(propertiesSingleMuon,1);
                 
                 for (Int_t iMuon2 = iMuon1+1; iMuon2 < numberOfTracks; iMuon2++)
@@ -359,7 +376,8 @@ void TaskDimuonPbPb::UserExec(Option_t *)
                     propertiesDiMuon[4]=runNumber;
 
                     if (muonCharge1 != muonCharge2){ fHistoDiMuonOS->Fill(propertiesDiMuon,1); }
-                    else if (muonCharge1 == muonCharge2){ fHistoDiMuonLS->Fill(propertiesDiMuon,1); }
+                    else if (muonCharge1 == muonCharge2 &&  muonCharge1 == 1){ fHistoDiMuonLSplus->Fill(propertiesDiMuon,1); }
+                    else if (muonCharge1 == muonCharge2 &&  muonCharge1 == -1){ fHistoDiMuonLSminus->Fill(propertiesDiMuon,1); }
 
                 }
                       

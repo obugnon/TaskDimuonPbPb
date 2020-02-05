@@ -37,7 +37,8 @@ class TaskDimuonPbPb : public AliAnalysisTaskSE
         TH1F *fHistoNumberMuonsCuts;
 
         THnSparseD *fHistoDiMuonOS;     // histogram to store some properties of dimuons unlike signe
-        THnSparseD *fHistoDiMuonLS;
+        THnSparseD *fHistoDiMuonLSplus;
+        THnSparseD *fHistoDiMuonLSminus;
       
         THnSparseD *fHistoSingleMuon;   // histogram to store some properties of single muons
       
