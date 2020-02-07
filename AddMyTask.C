@@ -32,6 +32,10 @@ TaskDimuonPbPb* AddMyTask(Bool_t isESD=kFALSE, TString name = "name", int firstR
         Error("AddTaskDimuonPbPb","AliAnalysisManager not set!");
         return 0x0;
     }
+    if (!TGrid::Connect("alien://obugnon"))
+    {   
+        Error("Submit","cannot connect to grid");
+    }
     // get the input event handler, again via a static method. 
     // this handler is part of the managing system and feeds events to your task
     TString type = mgr->GetInputEventHandler()->GetDataType();

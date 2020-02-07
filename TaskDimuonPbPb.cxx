@@ -23,10 +23,12 @@
 #include <iostream>
 #include "TChain.h"
 #include "TH1F.h"
+#include "TH1D.h"
 #include "TList.h"
 #include "TChain.h"
 #include "TMath.h"
 #include "THnSparse.h"
+#include "TFile.h"
 // include AliRoot Libraries
 #include "AliAnalysisTask.h"
 #include "AliAnalysisManager.h"
@@ -65,7 +67,9 @@ TaskDimuonPbPb::TaskDimuonPbPb() : AliAnalysisTaskSE(),
     fHistoDiMuonOS(0),
     fHistoDiMuonLSplus(0),
     fHistoDiMuonLSminus(0),
-    fHistoSingleMuon(0)
+    fHistoSingleMuon(0), 
+    fDownScaling(0),
+    hDownScaling(0)
 {
     // default constructor, don't allocate memory here!
     // this is used by root for IO purposes, it needs to remain empty
@@ -91,7 +95,9 @@ TaskDimuonPbPb::TaskDimuonPbPb(const char* name,int firstRun, int lastRun, UInt_
     fHistoDiMuonOS(0),
     fHistoDiMuonLSplus(0),
     fHistoDiMuonLSminus(0),
-    fHistoSingleMuon(0)
+    fHistoSingleMuon(0),
+    fDownScaling(0),
+    hDownScaling(0)
 {
     // constructor
     DefineInput(0, TChain::Class());    // define the input of the analysis: in this case we take a 'chain' of events
@@ -101,6 +107,11 @@ TaskDimuonPbPb::TaskDimuonPbPb(const char* name,int firstRun, int lastRun, UInt_
     DefineOutput(2, TList::Class());    // you can add more output objects by calling DefineOutput(2, classname::Class())
     DefineOutput(3, TList::Class());    // if you add more output objects, make sure to call PostData for all of them, and to
                                         // make changes to your AddTask macro!
+    fDownScaling = TFile::Open("alien:///alice/cern.ch/user/o/obugnon/downscaling_factors_2018.root");
+    // fDownScaling = TFile::Open("downscaling_factors_2018.root");
+    if(!fDownScaling) AliError("ERROR: Could not retrieve downscaling file !!");
+    hDownScaling = (TH1D*)fDownScaling->Get("hDS");                             
+    if(!hDownScaling) AliError("ERROR: Could not retrieve downscaling histogram !!");     
 }
 //_____________________________________________________________________________
 TaskDimuonPbPb::~TaskDimuonPbPb()
@@ -114,6 +125,9 @@ TaskDimuonPbPb::~TaskDimuonPbPb()
     }
     if(fListDiMuonHistos && !AliAnalysisManager::GetAnalysisManager()->IsProofMode()) {
         delete fListDiMuonHistos;
+    }
+    if(fDownScaling&& !AliAnalysisManager::GetAnalysisManager()->IsProofMode()){
+        delete fDownScaling;
     }
 }
 //_____________________________________________________________________________
@@ -264,10 +278,14 @@ void TaskDimuonPbPb::UserExec(Option_t *)
         return;
     }
     int runNumber;
-    cout << " Run Number is " << runNumber << endl;
     fVEvent = static_cast<AliVEvent *>(InputEvent());
     runNumber = fAODEvent->GetRunNumber();
+
+    //Downscaling for CMLL events
+    Double_t downScaling = hDownScaling->GetBinContent(hDownScaling->FindBin(runNumber));
+    if(downScaling == 0.) downScaling=1;
     
+    //Get the centrality
     AliMultSelection *multSelection = (AliMultSelection * ) fAODEvent->FindListObject("MultSelection");
     Double_t centralityFromV0 = multSelection->GetMultiplicityPercentile("V0M", false);
     if (centralityFromV0 > 90.) return;
@@ -301,6 +319,7 @@ void TaskDimuonPbPb::UserExec(Option_t *)
     UInt_t IsSelected = (((AliInputEventHandler*)(AliAnalysisManager::GetAnalysisManager()->GetInputEventHandler()))->IsEventSelected());
     if(((fTriggerClass == AliVEvent::kINT7inMUON || fTriggerClass == AliVEvent::kMuonUnlikeLowPt7 || fTriggerClass == AliVEvent::kMuonSingleLowPt7) && (IsSelected & fTriggerClass)) || (fTriggerClass == AliVEvent::kMuonLikeLowPt7 && (IsSelected & AliVEvent::kMuonLikeLowPt7 || IsSelected & AliVEvent::kMuonUnlikeLowPt7))) 
     {
+        //Event histos after physics selection
         fHistoPSEventsPerRun->Fill(runNumber);
         UInt_t L0InputMUL = 1<<20;
         UInt_t L0InputV0A = 1<<0;
@@ -375,9 +394,18 @@ void TaskDimuonPbPb::UserExec(Option_t *)
                     propertiesDiMuon[3]=centralityFromV0;
                     propertiesDiMuon[4]=runNumber;
 
-                    if (muonCharge1 != muonCharge2){ fHistoDiMuonOS->Fill(propertiesDiMuon,1); }
-                    else if (muonCharge1 == muonCharge2 &&  muonCharge1 == 1){ fHistoDiMuonLSplus->Fill(propertiesDiMuon,1); }
-                    else if (muonCharge1 == muonCharge2 &&  muonCharge1 == -1){ fHistoDiMuonLSminus->Fill(propertiesDiMuon,1); }
+                    if(fTriggerClass == AliVEvent::kMuonLikeLowPt7 && IsSelected & AliVEvent::kMuonLikeLowPt7 && !(IsSelected & AliVEvent::kMuonUnlikeLowPt7))
+                    {
+                        if (muonCharge1 != muonCharge2){ fHistoDiMuonOS->Fill(propertiesDiMuon,1/downScaling); }
+                        else if (muonCharge1 == muonCharge2 &&  muonCharge1 == 1){ fHistoDiMuonLSplus->Fill(propertiesDiMuon,1/downScaling); }
+                        else if (muonCharge1 == muonCharge2 &&  muonCharge1 == -1){ fHistoDiMuonLSminus->Fill(propertiesDiMuon,1/downScaling); }
+                    }
+                    else
+                    {
+                        if (muonCharge1 != muonCharge2){ fHistoDiMuonOS->Fill(propertiesDiMuon,1); }
+                        else if (muonCharge1 == muonCharge2 &&  muonCharge1 == 1){ fHistoDiMuonLSplus->Fill(propertiesDiMuon,1); }
+                        else if (muonCharge1 == muonCharge2 &&  muonCharge1 == -1){ fHistoDiMuonLSminus->Fill(propertiesDiMuon,1); }
+                    }
 
                 }
                       

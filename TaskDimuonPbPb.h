@@ -46,6 +46,9 @@ class TaskDimuonPbPb : public AliAnalysisTaskSE
         TList *fListSingleMuonHistos;   // list to save the single muon histograms
         TList *fListDiMuonHistos;       // list to save the dimuon histograms
 
+        TFile *fDownScaling;
+        TH1D *hDownScaling;
+
         TaskDimuonPbPb(const TaskDimuonPbPb&); // not implemented
         TaskDimuonPbPb& operator=(const TaskDimuonPbPb&); // not implemented
 
