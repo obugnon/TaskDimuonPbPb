@@ -37,17 +37,13 @@ class TaskDimuonPbPb : public AliAnalysisTaskSE
         TH1F *fHistoNumberMuonsCuts;
 
         THnSparseD *fHistoDiMuonOS;     // histogram to store some properties of dimuons unlike signe
-        THnSparseD *fHistoDiMuonLSplus;
-        THnSparseD *fHistoDiMuonLSminus;
+        THnSparseD *fHistoDiMuonLS;
       
         THnSparseD *fHistoSingleMuon;   // histogram to store some properties of single muons
       
         TList *fListEventHistos;        // list to save the events histograms 
         TList *fListSingleMuonHistos;   // list to save the single muon histograms
         TList *fListDiMuonHistos;       // list to save the dimuon histograms
-
-        TFile *fDownScaling;
-        TH1D *hDownScaling;
 
         TaskDimuonPbPb(const TaskDimuonPbPb&); // not implemented
         TaskDimuonPbPb& operator=(const TaskDimuonPbPb&); // not implemented

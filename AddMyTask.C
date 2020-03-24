@@ -19,7 +19,7 @@ TString outputListNames[] = {"EventHistos", "SingleMuonHistos", "DiMuonHistos"};
 int numberOfOutputLists = sizeof( outputListNames ) / sizeof( outputListNames[0] );
 
 ///Add the names of the trigger classes. Refer to AliVEvent.h to see the description for each trigger class. When adding multiple entries in the array, the analysis manager will run the class multiple times, each time using the correponding trigger class. The output containers will be labelled by the name of trigger
-UInt_t triggerClasses[] = {AliVEvent::kMuonUnlikeLowPt7, AliVEvent::kINT7inMUON, AliVEvent::kMuonSingleLowPt7, AliVEvent::kMuonLikeLowPt7};
+UInt_t triggerClasses[] = {AliVEvent::kMuonUnlikeLowPt7, AliVEvent::kINT7inMUON, AliVEvent::kMuonSingleLowPt7};
 int numberOfTriggerClasses = sizeof( triggerClasses ) / sizeof( triggerClasses[0] );
 const int numberOfTriggerClasses_CONST = numberOfTriggerClasses;
 
@@ -31,10 +31,6 @@ TaskDimuonPbPb* AddMyTask(Bool_t isESD=kFALSE, TString name = "name", int firstR
     if (!mgr) {
         Error("AddTaskDimuonPbPb","AliAnalysisManager not set!");
         return 0x0;
-    }
-    if (!TGrid::Connect("alien://obugnon"))
-    {   
-        Error("Submit","cannot connect to grid");
     }
     // get the input event handler, again via a static method. 
     // this handler is part of the managing system and feeds events to your task
@@ -84,7 +80,7 @@ TString GetTriggerClassName(UInt_t triggerClass)
 
     int numberOfAvailableTriggerClasses = sizeof( availableTriggerClasses ) / sizeof( availableTriggerClasses[0] );
 
-    TString availableTriggerClassesNames[] = {"CINT7", "CMSL7", "CMSH7", "CMLL7 | CMUL7", "CMUL7"};
+    TString availableTriggerClassesNames[] = {"CINT7", "CMSL7", "CMSH7", "CMLL7", "CMUL7"};
 
 
     for(int iTrigger=0;iTrigger<numberOfAvailableTriggerClasses;iTrigger++){

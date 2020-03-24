@@ -7,9 +7,9 @@
 void runAnalysis()
 {
     // set if you want to run the analysis locally (kTRUE), or on grid (kFALSE)
-    Bool_t local = kFALSE;
+    Bool_t local = kTRUE;
     // if you run on grid, specify test mode (kTRUE) or full grid model (kFALSE)
-    Bool_t gridTest = kTRUE;
+    Bool_t gridTest = kFALSE;
     
     // since we will compile a class, tell root where to look for headers  
 #if !defined (__CINT__) || defined (__CLING__)
@@ -62,15 +62,17 @@ void runAnalysis()
         alienHandler->SetAnalysisSource("TaskDimuonPbPb.cxx");
         // select the aliphysics version. all other packages
         // are LOADED AUTOMATICALLY!
-        alienHandler->SetAliPhysicsVersion("vAN-20181028_ROOT6-1");
+        alienHandler->SetAliPhysicsVersion("vAN-20200201_ROOT6-1");
         // set the Alien API version
         alienHandler->SetAPIVersion("V1.1x");
+        // select additionnal data file
+        // alienHandler->AddDataFile("alien:///alice/cern.ch/user/o/obugnon/downscaling_factors_2018.root");
         // select the input data
-        alienHandler->SetGridDataDir("/alice/data/2015/LHC15o");
-        // alienHandler->SetGridDataDir("/alice/data/2018/LHC18q");
+        //alienHandler->SetGridDataDir("/alice/data/2015/LHC15o");
+         alienHandler->SetGridDataDir("/alice/data/2018/LHC18q");
         // alienHandler->SetGridDataDir("/alice/data/2018/LHC18r");
-        alienHandler->SetDataPattern("*muon_calo_pass1/AOD229/*AliAOD.Muons.root");
-        // alienHandler->SetDataPattern("*muon_calo_pass3/AOD225/*AliAOD.Muons.root");
+        // alienHandler->SetDataPattern("*muon_calo_pass1/AOD229/*AliAOD.Muons.root");
+        alienHandler->SetDataPattern("*muon_calo_pass3/AOD225/*AliAOD.Muons.root");
         // alienHandler->SetDataPattern("*muon_calo_pass3/AOD225/*AliAOD.Muons.root");
         // MC has no prefix, data has prefix 000
         alienHandler->SetRunPrefix("000");
@@ -82,7 +84,7 @@ void runAnalysis()
         alienHandler->SetSplitMaxInputFileNumber(100);
         alienHandler->SetExecutable("myTask.sh");
         // specify how many seconds your job may take
-        alienHandler->SetTTL(30000);
+        alienHandler->SetTTL(35000);
         alienHandler->SetJDLName("myTask.jdl");
 
         alienHandler->SetOutputToRunNo(kTRUE);
@@ -95,8 +97,8 @@ void runAnalysis()
         alienHandler->SetMergeViaJDL(kTRUE);
 
         // define the output folders
-        alienHandler->SetGridWorkingDir("dimuonData_LHC15o");
-        // alienHandler->SetGridWorkingDir("dimuonData_LHC18q");
+        // alienHandler->SetGridWorkingDir("dimuonData_LHC15o");
+        alienHandler->SetGridWorkingDir("dimuonData_LHC18q");
         // alienHandler->SetGridWorkingDir("dimuonData_LHC18r");
         alienHandler->SetGridOutputDir("myOutputDir");
 
