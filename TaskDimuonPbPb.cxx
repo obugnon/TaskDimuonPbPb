@@ -225,7 +225,7 @@ void TaskDimuonPbPb::UserCreateOutputObjects()
 
         //DiMuon histograms
         Int_t nbinsDiMuon[4]={1000,400,60,22}; //Mmumu, pT, y, centrality
-        Double_t xminDiMuon[4]={0,0,-5,0,0,0}, xmaxDiMuon[4]={20,20,-2,110};
+        Double_t xminDiMuon[4]={0,0,-5,0}, xmaxDiMuon[4]={20,20,-2,110};
         fHistoDiMuonOS = new THnSparseD("fHistoDiMuonOS","",4,nbinsDiMuon,xminDiMuon,xmaxDiMuon, 1024*16);
         fHistoDiMuonOS->Sumw2();
         fHistoDiMuonOS->GetAxis(0)->SetTitle("M_{#mu#mu} GeV/c^{2}");
