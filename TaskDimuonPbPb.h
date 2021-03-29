@@ -30,9 +30,11 @@ class TaskDimuonPbPb : public AliAnalysisTaskSE
         TH1I *fHistoPSEventsPerRun;         // for the physics selection
         TH1I *fHistoEventsBeforePSPerRun;   
       
-        TH1I *fHistoCMULEventsInCINT7;      // for the normalization
-        TH1I *fHistoCMSLEventsInCINT7;
-        TH1I *fHistoCMULEventsInCMSL;
+        TH1I *fHisto0MULEventsInCINT7;      // for the normalization
+        TH1I *fHisto0MSLEventsInCINT7;
+        TH1I *fHisto0MULEventsInCMSL;
+        TH1I *fHisto0V0MEventsInCINT7;
+        TH1I *fHisto0MULand0V0MEventsInCINT7;
       
         TH1F *fHistoNumberMuonsCuts;
 

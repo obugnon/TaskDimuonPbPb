@@ -60,9 +60,11 @@ TaskDimuonPbPb::TaskDimuonPbPb() : AliAnalysisTaskSE(),
     fHistoTotalEventsPerRun(0),
     fHistoPSEventsPerRun(0),
     fHistoEventsBeforePSPerRun(0),
-    fHistoCMULEventsInCINT7(0),
-    fHistoCMSLEventsInCINT7(0),
-    fHistoCMULEventsInCMSL(0),
+    fHisto0MULEventsInCINT7(0),
+    fHisto0MSLEventsInCINT7(0),
+    fHisto0MULEventsInCMSL(0),
+    fHisto0V0MEventsInCINT7(0),
+    fHisto0MULand0V0MEventsInCINT7(0),
     fHistoNumberMuonsCuts(0),
     fHistoDiMuonOS(0),
     fHistoDiMuonLS(0),
@@ -85,9 +87,11 @@ TaskDimuonPbPb::TaskDimuonPbPb(const char* name,int firstRun, int lastRun, UInt_
     fHistoTotalEventsPerRun(0),
     fHistoPSEventsPerRun(0),
     fHistoEventsBeforePSPerRun(0),
-    fHistoCMULEventsInCINT7(0),
-    fHistoCMSLEventsInCINT7(0),
-    fHistoCMULEventsInCMSL(0),
+    fHisto0MULEventsInCINT7(0),
+    fHisto0MSLEventsInCINT7(0),
+    fHisto0MULEventsInCMSL(0),
+    fHisto0V0MEventsInCINT7(0),
+    fHisto0MULand0V0MEventsInCINT7(0),
     fHistoNumberMuonsCuts(0),
     fHistoDiMuonOS(0),
     fHistoDiMuonLS(0),
@@ -158,27 +162,39 @@ void TaskDimuonPbPb::UserCreateOutputObjects()
 
     if(fTriggerClass == AliVEvent::kINT7inMUON)
     {
-        fHistoCMULEventsInCINT7 = new TH1I("fHistoCMULEventsInCINT7","",fLastRun - fFirstRun,fFirstRun,fLastRun);
-        fHistoCMULEventsInCINT7->Sumw2();
-        fHistoCMULEventsInCINT7->GetXaxis()->SetTitle("Run Number");
-        fHistoCMULEventsInCINT7->GetYaxis()->SetTitle("# 0MUL inputs in CINT7 events");
-        fListEventHistos->Add(fHistoCMULEventsInCINT7);
+        fHisto0MULEventsInCINT7 = new TH1I("fHisto0MULEventsInCINT7","",fLastRun - fFirstRun,fFirstRun,fLastRun);
+        fHisto0MULEventsInCINT7->Sumw2();
+        fHisto0MULEventsInCINT7->GetXaxis()->SetTitle("Run Number");
+        fHisto0MULEventsInCINT7->GetYaxis()->SetTitle("# 0MUL inputs in CINT7 events");
+        fListEventHistos->Add(fHisto0MULEventsInCINT7);
     
-        fHistoCMSLEventsInCINT7 = new TH1I("fHistoCMSLEventsInCINT7","",fLastRun - fFirstRun,fFirstRun,fLastRun);
-        fHistoCMSLEventsInCINT7->Sumw2();
-        fHistoCMSLEventsInCINT7->GetXaxis()->SetTitle("Run Number");
-        fHistoCMSLEventsInCINT7->GetYaxis()->SetTitle("# 0MSL inputs in CINT7 events");
-        fListEventHistos->Add(fHistoCMSLEventsInCINT7);
+        fHisto0MSLEventsInCINT7 = new TH1I("fHisto0MSLEventsInCINT7","",fLastRun - fFirstRun,fFirstRun,fLastRun);
+        fHisto0MSLEventsInCINT7->Sumw2();
+        fHisto0MSLEventsInCINT7->GetXaxis()->SetTitle("Run Number");
+        fHisto0MSLEventsInCINT7->GetYaxis()->SetTitle("# 0MSL inputs in CINT7 events");
+        fListEventHistos->Add(fHisto0MSLEventsInCINT7);
+
+        fHisto0V0MEventsInCINT7 = new TH1I("fHisto0V0MEventsInCINT7","",fLastRun - fFirstRun,fFirstRun,fLastRun);
+        fHisto0V0MEventsInCINT7->Sumw2();
+        fHisto0V0MEventsInCINT7->GetXaxis()->SetTitle("Run Number");
+        fHisto0V0MEventsInCINT7->GetYaxis()->SetTitle("# 0V0M inputs in CINT7 events");
+        fListEventHistos->Add(fHisto0V0MEventsInCINT7);
+
+        fHisto0MULand0V0MEventsInCINT7 = new TH1I("fHisto0MULand0V0MEventsInCINT7","",fLastRun - fFirstRun,fFirstRun,fLastRun);
+        fHisto0MULand0V0MEventsInCINT7->Sumw2();
+        fHisto0MULand0V0MEventsInCINT7->GetXaxis()->SetTitle("Run Number");
+        fHisto0MULand0V0MEventsInCINT7->GetYaxis()->SetTitle("# 0V0M inputs in CINT7 events");
+        fListEventHistos->Add(fHisto0MULand0V0MEventsInCINT7);
     }
 
 
     if(fTriggerClass == AliVEvent::kMuonSingleLowPt7)
     {
-        fHistoCMULEventsInCMSL = new TH1I("fHistoCMULEventsInCMSL","",fLastRun - fFirstRun,fFirstRun,fLastRun);
-        fHistoCMULEventsInCMSL->Sumw2();
-        fHistoCMULEventsInCMSL->GetXaxis()->SetTitle("Run Number");
-        fHistoCMULEventsInCMSL->GetYaxis()->SetTitle("# 0MUL inputs in CMSL events");
-        fListEventHistos->Add(fHistoCMULEventsInCMSL);
+         fHisto0MULEventsInCMSL = new TH1I(" fHisto0MULEventsInCMSL","",fLastRun - fFirstRun,fFirstRun,fLastRun);
+         fHisto0MULEventsInCMSL->Sumw2();
+         fHisto0MULEventsInCMSL->GetXaxis()->SetTitle("Run Number");
+         fHisto0MULEventsInCMSL->GetYaxis()->SetTitle("# 0MUL inputs in CMSL events");
+        fListEventHistos->Add( fHisto0MULEventsInCMSL);
     }
 
     fListSingleMuonHistos = new TList();
@@ -189,8 +205,8 @@ void TaskDimuonPbPb::UserCreateOutputObjects()
     if(fTriggerClass == AliVEvent::kMuonUnlikeLowPt7)
     {
         //SingleMuon histograms
-        Int_t nbinsSingleMuon[5]={1000,60,100,100, 20}; //pT, Eta, Theta, Phi, cent
-        Double_t xminSingleMuon[5]={0,-5,0.75*TMath::Pi(),-TMath::Pi(), 0}, xmaxSingleMuon[5]={100,-2,1.25*TMath::Pi(),TMath::Pi(),100;
+        Int_t nbinsSingleMuon[5]={1000,60,100,100, 22}; //pT, Eta, Theta, Phi, cent
+        Double_t xminSingleMuon[5]={0,-5,0.75*TMath::Pi(),-TMath::Pi(), 0}, xmaxSingleMuon[5]={100,-2,1.25*TMath::Pi(),TMath::Pi(),110};
         fHistoSingleMuon = new THnSparseD("fHistoSingleMuon","",5, nbinsSingleMuon,xminSingleMuon,xmaxSingleMuon, 1024*16);
         fHistoSingleMuon->Sumw2();
         fHistoSingleMuon->GetAxis(0)->SetTitle("p_{T} GeV/c");
@@ -208,8 +224,8 @@ void TaskDimuonPbPb::UserCreateOutputObjects()
 
 
         //DiMuon histograms
-        Int_t nbinsDiMuon[4]={1000,400,60,20}; //Mmumu, pT, y, centrality
-        Double_t xminDiMuon[4]={0,0,-5,0}, xmaxDiMuon[4]={20,20,-2,100};
+        Int_t nbinsDiMuon[4]={1000,400,60,22}; //Mmumu, pT, y, centrality
+        Double_t xminDiMuon[4]={0,0,-5,0,0,0}, xmaxDiMuon[4]={20,20,-2,110};
         fHistoDiMuonOS = new THnSparseD("fHistoDiMuonOS","",4,nbinsDiMuon,xminDiMuon,xmaxDiMuon, 1024*16);
         fHistoDiMuonOS->Sumw2();
         fHistoDiMuonOS->GetAxis(0)->SetTitle("M_{#mu#mu} GeV/c^{2}");
@@ -258,59 +274,63 @@ void TaskDimuonPbPb::UserExec(Option_t *)
     //Get the centrality
     AliMultSelection *multSelection = (AliMultSelection * ) fAODEvent->FindListObject("MultSelection");
     Double_t centralityFromV0 = multSelection->GetMultiplicityPercentile("V0M", false);
-    if (centralityFromV0 > 90.) return;
 
-    // Event Histos   
-    fHistoTotalEventsPerRun->Fill(runNumber);
-    TString strFiredTriggers = fAODEvent->GetFiredTriggerClasses();
-
-    if(fTriggerClass == AliVEvent::kINT7inMUON)
+    // Event Histos
+    TString strFiredTriggers = fAODEvent->GetFiredTriggerClasses();   
+    if(centralityFromV0 <= 90.) 
     {
-        if(strFiredTriggers.Contains("CINT7-B-NOPF-MUFAST")) fHistoEventsBeforePSPerRun->Fill(runNumber);
-    }
-
-    if(fTriggerClass == AliVEvent::kMuonUnlikeLowPt7)
-    {
-        if(strFiredTriggers.Contains("CMUL7-B-NOPF-MUFAST")) fHistoEventsBeforePSPerRun->Fill(runNumber);
-    }
-
-    if(fTriggerClass == AliVEvent::kMuonSingleLowPt7)
-    {
-        if(strFiredTriggers.Contains("CMSL7-B-NOPF-MUFAST")) fHistoEventsBeforePSPerRun->Fill(runNumber);
-    }
+        fHistoTotalEventsPerRun->Fill(runNumber);
     
+        if(fTriggerClass == AliVEvent::kINT7inMUON)
+        {
+            if(strFiredTriggers.Contains("CINT7-B-NOPF-MUFAST")) fHistoEventsBeforePSPerRun->Fill(runNumber);
+        }
+
+        if(fTriggerClass == AliVEvent::kMuonUnlikeLowPt7)
+        {
+            if(strFiredTriggers.Contains("CMUL7-B-NOPF-MUFAST")) fHistoEventsBeforePSPerRun->Fill(runNumber);
+        }
+
+        if(fTriggerClass == AliVEvent::kMuonSingleLowPt7)
+        {
+            if(strFiredTriggers.Contains("CMSL7-B-NOPF-MUFAST")) fHistoEventsBeforePSPerRun->Fill(runNumber);
+        }
+    }
                                 
     //Physics Selection
     UInt_t IsSelected = (((AliInputEventHandler*)(AliAnalysisManager::GetAnalysisManager()->GetInputEventHandler()))->IsEventSelected());
     if(IsSelected & fTriggerClass)
     {
         //Event histos after physics selection
-        fHistoPSEventsPerRun->Fill(runNumber);
-        UInt_t L0InputMUL = 1<<20;
-        UInt_t L0InputV0A = 1<<0;
-        UInt_t L0InputV0C = 1<<1;
-        UInt_t L0InputMSL = 1<<17;
+        if(centralityFromV0 <= 90.) fHistoPSEventsPerRun->Fill(runNumber);
+        UInt_t L0InputMUL = 1<<18; //input 0MUL = 21 pour LHC15o et 19 pour LHC18qr
+        UInt_t L0InputV0A = 1<<0; //input 0VBA = 1 pour LHC15o et LHC18qr
+        UInt_t L0InputV0C = 1<<1; //input 0VBC = 2 pour LHC15o et LHC18qr
+        UInt_t L0InputMSL = 1<<19; //input 0MSL = 18 pour LHC15o et 20 pour LHC18qr
+        UInt_t L0InputV0M = 1<<6; //input V0M = 4 pour LHC15o et 7 pour LHC18qr
 
         AliAODHeader *aodHeader = NULL;
         aodHeader = (AliAODHeader*)fAODEvent->GetHeader();
         UInt_t L0TriggerInputs = aodHeader->GetL0TriggerInputs();
 
-        if(fTriggerClass == AliVEvent::kINT7inMUON)
-        {
-            if( (L0TriggerInputs & L0InputV0A) && (L0TriggerInputs & L0InputV0C) )//MB condition (should be the same as the condition for isSelectedCINTEvent, just to make sure)
-            {
-                if(L0TriggerInputs & L0InputMUL){fHistoCMULEventsInCINT7->Fill(runNumber);}
-                if(L0TriggerInputs & L0InputMSL){fHistoCMSLEventsInCINT7->Fill(runNumber);}
-            }
-        }
 
-        if(fTriggerClass == AliVEvent::kMuonSingleLowPt7)
+        if(centralityFromV0 <= 90.)
         {
-            if( (L0TriggerInputs & L0InputV0A) && (L0TriggerInputs & L0InputV0C) && (L0TriggerInputs & L0InputMSL))//CMSL condition
+            if(fTriggerClass == AliVEvent::kINT7inMUON)
             {
-                if(L0TriggerInputs & L0InputMUL){fHistoCMULEventsInCMSL->Fill(runNumber);}
+
+                if(L0TriggerInputs & L0InputMUL){fHisto0MULEventsInCINT7->Fill(runNumber);}
+                if(L0TriggerInputs & L0InputMSL){fHisto0MSLEventsInCINT7->Fill(runNumber);}
+                if(L0TriggerInputs & L0InputV0M){fHisto0V0MEventsInCINT7->Fill(runNumber);}
+                if((L0TriggerInputs & L0InputV0M) && (L0TriggerInputs & L0InputMUL)){fHisto0MULand0V0MEventsInCINT7->Fill(runNumber);}
+            }
+
+            if(fTriggerClass == AliVEvent::kMuonSingleLowPt7)
+            {
+                if(L0TriggerInputs & L0InputMUL){ fHisto0MULEventsInCMSL->Fill(runNumber);}
             }
         }
+        
 
         //Fill Single Muon and Dimuon properties histograms
         if(fTriggerClass == AliVEvent::kMuonUnlikeLowPt7)
@@ -361,8 +381,6 @@ void TaskDimuonPbPb::UserExec(Option_t *)
                     if (muonCharge1 != muonCharge2){ fHistoDiMuonOS->Fill(propertiesDiMuon); }
                     else if (muonCharge1 == muonCharge2){ fHistoDiMuonLS->Fill(propertiesDiMuon); }
                     
-                    
-
                 }
                       
             }

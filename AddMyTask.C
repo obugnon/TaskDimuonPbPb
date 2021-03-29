@@ -23,7 +23,7 @@ UInt_t triggerClasses[] = {AliVEvent::kMuonUnlikeLowPt7, AliVEvent::kINT7inMUON,
 int numberOfTriggerClasses = sizeof( triggerClasses ) / sizeof( triggerClasses[0] );
 const int numberOfTriggerClasses_CONST = numberOfTriggerClasses;
 
-TaskDimuonPbPb* AddMyTask(Bool_t isESD=kFALSE, TString name = "name", int firstRun = 244918, int lastRun = 297595)
+TaskDimuonPbPb* AddMyTask(Bool_t isESD=kFALSE, TString name = "name", int firstRun = 296690, int lastRun = 297595)
 {
     // get the manager via the static access member. since it's static, you don't need
     // to create an instance of the class here to call the function
